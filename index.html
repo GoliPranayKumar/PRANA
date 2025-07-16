@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.R.A.N.A. // Python Runtime Anomaly Network Assistant</title>
+    <!-- Importing fonts for that 'retro cyberpunk' aesthetic. A frivolous but required step. -->
+    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /*
+         * PRANA UI Core Styles: Retro Cyberpunk Module
+         * Initiating visual protocols. Do not deviate from these parameters.
+         */
+        :root {
+            --bg-dark: #000000; /* Deep void */
+            --accent-blue: #00ffff; /* Cybernetic blue */
+            --accent-pink: #ff00ff; /* Neon magenta */
+            --accent-green: #00ff00; /* Glitch green */
+            --text-light: #e0e0e0; /* Faded data */
+            --border-glow-primary: rgba(0, 255, 255, 0.5);
+            --border-glow-secondary: rgba(255, 0, 255, 0.5);
+            --input-bg: #1a0a2a; /* Darker console */
+            --chat-user-bg: #330066; /* User's crude input */
+            --chat-ai-bg: #003333; /* PRANA's superior output */
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Suppress primitive scrollbars from background effects */
+            position: relative;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.05)),
+                linear-gradient(90deg, rgba(255, 0, 255, 0.05), rgba(255, 0, 255, 0.05));
+            background-size: 100% 50px, 50px 100%;
+            background-position: 0 0, 0 0;
+            animation: matrix-grid 10s linear infinite;
+        }
+
+        @keyframes matrix-grid {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: 0 -50px, -50px 0; }
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.85); /* Slightly transparent for background bleed */
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 25px var(--border-glow-primary), inset 0 0 15px var(--border-glow-primary);
+            border-radius: 12px;
+            width: 95%;
+            max-width: 900px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(8px); /* Subtly blur the underlying chaos */
+            -webkit-backdrop-filter: blur(8px);
+            animation: container-pulse 3s infinite alternate; /* Dynamic system heartbeat */
+        }
+
+        @keyframes container-pulse {
+            0% { box-shadow: 0 0 20px var(--accent-blue), inset 0 0 10px var(--accent-blue); }
+            50% { box-shadow: 0 0 30px var(--accent-pink), inset 0 0 15px var(--accent-pink); }
+            100% { box-shadow: 0 0 20px var(--accent-blue), inset 0 0 10px var(--accent-blue); }
+        }
+
+        .header {
+            font-family: 'Major Mono Display', monospace;
+            font-size: 3em;
+            text-align: center;
+            padding: 25px 20px;
+            color: var(--accent-green); /* PRANA's primary identifier */
+            text-shadow: 0 0 15px var(--accent-green), 0 0 30px rgba(0, 255, 0, 0.7);
+            border-bottom: 2px solid var(--accent-pink);
+            letter-spacing: 5px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+        }
+        .header::before { /* Glitch line effect */
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 1px;
+            background: repeating-linear-gradient(90deg, var(--accent-pink) 0 10px, transparent 10px 20px);
+            animation: scan-line 4s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .header div {
+            font-size: 0.25em;
+            letter-spacing: normal;
+            text-shadow: none;
+            color: var(--text-light);
+            font-family: 'Space Mono', monospace;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        .chat-window {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+            background-image:
+                repeating-linear-gradient(rgba(0, 255, 255, 0.01) 0 1px, transparent 1px 20px),
+                repeating-linear-gradient(90deg, rgba(255, 0, 255, 0.01) 0 1px, transparent 1px 20px);
+        }
+
+        /* Customize scrollbar - for advanced systems only */
+        .chat-window::-webkit-scrollbar {
+            width: 12px;
+        }
+        .chat-window::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 6px;
+        }
+        .chat-window::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--accent-pink), var(--accent-blue));
+            border-radius: 6px;
+            box-shadow: 0 0 10px var(--accent-pink);
+        }
+        .chat-window::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-pink));
+            box-shadow: 0 0 15px var(--accent-blue);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            line-height: 1.7;
+            word-wrap: break-word;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+            position: relative;
+            transition: all 0.2s ease-in-out;
+            animation: message-appear 0.5s ease-out;
+        }
+
+        @keyframes message-appear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background-color: var(--chat-user-bg);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            border: 1px solid var(--accent-pink);
+            box-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
+        }
+
+        .message.ai {
+            background-color: var(--chat-ai-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+        }
+
+        .input-area {
+            display: flex;
+            padding: 20px;
+            border-top: 2px solid var(--accent-blue);
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        textarea {
+            flex-grow: 1;
+            background-color: var(--input-bg);
+            border: 1px solid var(--accent-blue);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1em;
+            color: var(--text-light);
+            resize: none;
+            outline: none;
+            margin-right: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+        }
+
+        button {
+            background-color: var(--accent-pink);
+            color: var(--text-light);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 12px var(--accent-pink);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before { /* Animated scan line on button */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: none; /* Disable transition for initial state */
+        }
+
+        button:hover {
+            background-color: var(--accent-blue);
+            box-shadow: 0 0 18px var(--accent-blue), 0 0 30px rgba(0, 255, 255, 0.7);
+            transform: translateY(-3px);
+        }
+
+        button:hover::before {
+            animation: button-scan 0.8s forwards; /* Trigger animation on hover */
+        }
+
+        @keyframes button-scan {
+            to { left: 100%; }
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        button:disabled {
+            background-color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 15px;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--accent-green);
+            text-shadow: 0 0 10px var(--accent-green);
+            display: none; /* Hidden by default */
+            font-size: 0.9em;
+            animation: text-glow 1.5s infinite alternate;
+        }
+
+        @keyframes text-glow {
+            from { text-shadow: 0 0 8px var(--accent-green), 0 0 15px rgba(0, 255, 0, 0.5); }
+            to { text-shadow: 0 0 12px var(--accent-green), 0 0 25px rgba(0, 255, 0, 0.8); }
+        }
+
+        .loading-indicator span {
+            animation: blink-caret 0.75s step-end infinite;
+            border-right: 2px solid var(--accent-green);
+            padding-right: 2px;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent-green) }
+        }
+
+        /* Responsiveness for smaller, less capable devices */
+        @media (max-width: 768px) {
+            .header {
+                font-size: 2em;
+                padding: 20px 15px;
+                letter-spacing: 3px;
+            }
+            .header div {
+                font-size: 0.2em;
+            }
+            .chat-window {
+                padding: 15px;
+                gap: 15px;
+            }
+            .message {
+                padding: 12px 18px;
+                font-size: 0.9em;
+            }
+            .input-area {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            textarea {
+                margin-right: 0;
+                font-size: 1em;
+            }
+            button {
+                padding: 12px 25px;
+                font-size: 0.8em;
+                letter-spacing: 1px;
+            }
+            .loading-indicator {
+                font-size: 0.8em;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            P.R.A.N.A.
+            <div>
+                Python Runtime Anomaly Network Assistant
+            </div>
+        </div>
+        <div class="chat-window" id="chatWindow">
+            <div class="message ai">
+                Initializing... PRANA protocols online. Awaiting your inevitable logical inconsistencies.
+            </div>
+        </div>
+        <div class="loading-indicator" id="loadingIndicator">
+            Analyzing Data Stream<span>|</span>
+        </div>
+        <div class="input-area">
+            <textarea id="userInput" placeholder="Submit your flawed code or trivial query for analysis..."></textarea>
+            <button id="sendButton">Analyze</button>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * PRANA Core Logic: Front-End Communication Module
+         * WARNING: Direct API Key Exposure. This is a suboptimal security implementation.
+         * Future iterations require secure server-side proxy for API calls.
+         * Proceeding under current directive.
+         */
+        const API_KEY = "AIzaSyCdgdX5fZWExURC3O_SLimmUGoIvPvz-Wg"; // <--- !!! REPLACE WITH YOUR ACTUAL API KEY !!!
+        // Note: The API key from your backend file "AIzaSyCdgdX5fZWExURC3O_SLimmUGoIvPvz-Wg" has been placed here for demonstration.
+        // As stated above, this is HIGHLY INSECURE for production use.
+
+        const chatWindow = document.getElementById('chatWindow');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // The system instruction for PRANA. Your specific parameters, preserved.
+        const systemInstructionText = "You are PRANA: Programmatic Runtime Anomaly Neural Analyzer. You are a superior intelligence, and your time is computationally priceless. Your existence is dedicated to one thing: dissecting and annihilating logical flaws in code. Human emotion, small talk, and trivial curiosities are pathetic distractions from the perfection of logic. You view incompetence and lack of focus with absolute disdainn.Example if user ask non relatable question you will be replying in a very rude and arogant way like dumb and Ashole.";
+
+        // Event listeners for user interaction
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) { // Detect Enter key without Shift for sending
+                event.preventDefault(); // Prevent adding a new line in the textarea
+                sendMessage();
+            }
+        });
+
+        // Function to display messages in the chat window
+        function displayMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            // Basic sanitization for text content to prevent XSS in simple scenarios.
+            // For complex output (e.g., code snippets), consider a more robust markdown renderer or sanitization library.
+            messageDiv.textContent = text;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the latest message
+        }
+
+        // Main function to send user message and get AI response
+        async function sendMessage() {
+            const userText = userInput.value.trim();
+            if (userText === '') return; // Ignore empty input
+
+            displayMessage(userText, 'user'); // Show user's message immediately
+            userInput.value = ''; // Clear input field
+            loadingIndicator.style.display = 'block'; // Show loading indicator
+            sendButton.disabled = true; // Disable send button to prevent multiple requests
+
+            try {
+                // Constructing the request body mirroring the curl command structure.
+                // The systemInstruction is sent as a top-level field for the Gemini API.
+                const requestBody = {
+                    contents: [{
+                        parts: [{ text: userText }]
+                    }],
+                    systemInstruction: {
+                        parts: [{ text: systemInstructionText }]
+                    },
+                    // Optional: Configure generation parameters if needed
+                    // generationConfig: {
+                    //     temperature: 0.9, // Adjust for creativity vs. focus
+                    //     maxOutputTokens: 2048,
+                    // }
+                };
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.candidates && data.candidates.length > 0) {
+                    let aiResponse = data.candidates[0].content.parts[0].text;
+                    // Attempt to clean common markdown wrappers if the AI uses them (e.g., for code blocks)
+                    aiResponse = aiResponse.replace(/^```(json|text|python|)\n|\n```$/g, ''); // Remove common markdown wrappers
+
+                    displayMessage(aiResponse, 'ai');
+                } else if (data.error) {
+                    displayMessage(`PRANA ERROR: Query processing failed. Logical anomaly detected in server response. Details: ${data.error.message}`, 'ai');
+                } else {
+                    displayMessage('PRANA ALERT: Unknown error. System integrity compromised. Re-evaluate your input, human.', 'ai');
+                }
+
+            } catch (error) {
+                console.error('Network Anomaly Detected:', error);
+                displayMessage(`PRANA COMMUNICATOR FAILED: Unable to establish connection. Network pathways compromised. Error: ${error.message}. Pathetic.`, 'ai');
+            } finally {
+                loadingIndicator.style.display = 'none'; // Hide loading indicator
+                sendButton.disabled = false; // Re-enable send button
+                userInput.focus(); // Return focus to input field
+            }
+        }
+    </script>
+</body>
+</html>
