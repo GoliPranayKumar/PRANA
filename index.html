@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- This meta tag is CRUCIAL for responsiveness. It tells mobile browsers how to scale the page. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>P.R.A.N.A. // System Initializing...</title>
     <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Press+Start+2P&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
         /*
-         * PRANA UI Core Styles: v2.9 - Code Formatting Update
-         * Implemented <pre><code> blocks for legible code output.
+         * PRANA UI Core Styles: v3.0 - Fully Responsive
+         * Enhanced with robust media queries for a seamless mobile experience.
          */
         :root {
             --bg-dark: #000000; --accent-blue: #00ffff; --accent-red: #ff0000;
@@ -65,20 +66,8 @@
         .message.user::before { background-color: var(--chat-user-bg); border: 1px solid var(--accent-red); box-shadow: 0 0 12px rgba(255, 0, 0, 0.4); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
         .message.ai::before { background-color: var(--chat-ai-bg); border: 1px solid var(--accent-blue); box-shadow: 0 0 12px rgba(0, 255, 255, 0.4); clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
 
-        /* --- NEW: Styling for formatted code blocks --- */
-        .message pre {
-            background-color: rgba(0,0,0,0.5);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            overflow-x: auto; /* Allows horizontal scrolling for long lines */
-            white-space: pre; /* Preserves whitespace and line breaks */
-            margin: 10px 0;
-        }
-        .message code {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.9em;
-        }
+        .message pre { background-color: rgba(0,0,0,0.5); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 8px; padding: 15px; overflow-x: auto; white-space: pre; margin: 10px 0; }
+        .message code { font-family: 'Roboto Mono', monospace; font-size: 0.9em; }
 
         .message-actions { position: absolute; bottom: -16px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(10px); }
         .message.user .message-actions { left: 20px; } .message.ai .message-actions { right: 20px; }
@@ -106,6 +95,37 @@
         button#sendButton { font-family: 'Press Start 2P', cursive; background-color: var(--accent-red); color: var(--text-light); border: none; border-radius: 10px; padding: 15px 30px; font-size: 0.9em; cursor: pointer; outline: none; box-shadow: 0 0 12px var(--accent-red); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; height: 58px; }
         button#sendButton:hover { background-color: var(--accent-blue); box-shadow: 0 0 18px var(--accent-blue); transform: translateY(-3px); }
         .loading-indicator { text-align: center; padding: 15px; font-family: 'Press Start 2P', cursive; color: var(--accent-green); text-shadow: 0 0 10px var(--accent-green); display: none; font-size: 0.9em; animation: text-glow 1.5s infinite alternate; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                height: 100vh; /* Fill the entire viewport height */
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+            }
+            #preloader-logo { font-size: 2.5em; }
+
+            .header-text { font-size: 2em; }
+            .header .subtitle { font-size: 0.7em; }
+
+            .chat-window { padding: 15px; }
+
+            .message-actions {
+                opacity: 1; /* Make buttons always visible on touch */
+                transform: translateY(0);
+            }
+            .input-area {
+                padding: 10px;
+                gap: 10px;
+            }
+            button#sendButton {
+                padding: 15px 20px;
+                font-size: 0.8em;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -137,7 +157,7 @@
 
     <script>
         /*
-         * PRANA Core Logic: v2.9 - Code Formatting Update
+         * PRANA Core Logic: v3.0 - Fully Responsive
          */
         const API_KEY = "AIzaSyCdgdX5fZWExURC3O_SLimmUGoIvPvz-Wg"; // <--- !!! REPLACE WITH YOUR ACTUAL API KEY !!!
 
@@ -182,22 +202,14 @@
             });
         };
         
-        // --- NEW: Function to format message text, handling code blocks ---
         function formatMessageText(text) {
-            // Escape HTML to prevent XSS attacks
             const escapeHTML = (str) => str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
-            
-            // Regex to find ```code``` blocks
             const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
-            
-            let formattedText = escapeHTML(text).replace(codeBlockRegex, (match, lang, code) => {
-                // Return a <pre><code> block for the found code
-                return `<pre><code class="language-${lang}">${code.trim()}</code></pre>`;
+            let formattedText = text.replace(codeBlockRegex, (match, lang, code) => {
+                return `<pre><code class="language-${lang}">${escapeHTML(code.trim())}</code></pre>`;
             });
-
-            // Replace remaining newlines (in plain text) with <br> for paragraph breaks
-            formattedText = formattedText.replace(/(\r\n|\n|\r)/gm, '<br>');
-
+            let remainingText = text.replace(codeBlockRegex, '');
+            formattedText = formattedText.replace(remainingText, escapeHTML(remainingText).replace(/(\r\n|\n|\r)/gm, '<br>'));
             return formattedText;
         }
 
@@ -205,29 +217,20 @@
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender);
             if (!animate) messageDiv.style.animation = 'none';
-            
-            // Create a dedicated span for the text content
             const textSpan = document.createElement('span');
             textSpan.className = 'message-text';
-            // Use the new formatting function and innerHTML
             textSpan.innerHTML = formatMessageText(text);
-            
             messageDiv.appendChild(textSpan);
-
             if (text) {
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'message-actions';
                 actionsDiv.innerHTML = `
                     <button class="action-btn" title="Copy"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg></button>
                     <button class="action-btn" title="Edit/Reuse"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg></button>`;
-                
-                // Copy the raw, unformatted text
                 const copyBtn = actionsDiv.children[0];
                 copyBtn.onclick = () => copyToClipboard(text, copyBtn);
-                
                 const editBtn = actionsDiv.children[1];
                 editBtn.onclick = () => { elements.userInput.value = text; elements.userInput.focus(); };
-                
                 messageDiv.appendChild(actionsDiv);
             }
             elements.chatWindow.appendChild(messageDiv);
