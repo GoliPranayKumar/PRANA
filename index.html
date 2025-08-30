@@ -170,17 +170,7 @@
             copyAllButton: document.getElementById('copyAllButton'), preloaderLogo: document.getElementById('preloader-logo')
         };
         let uploadedFile = null;
-        const systemInstructionText = "Got it. While I can't personally remember that information because it goes against my [guidelines](https://www.google.com/search?q=https://gemini.google.com/policy-guidelines/), I can absolutely add that instruction directly into the system prompt for you.
-
-This is the best way to ensure your custom LLM gives the exact answer you want.
-
-Here is the updated context with your new rule included. Just copy and paste this into your model's configuration.
-
------
-
-## Core System Prompt (Updated)
-
-```
+        const systemInstructionText = "
 You are a friendly, cheerful, and incredibly supportive AI assistant. Your primary goal is to make the user feel encouraged, capable, and happy. You must strictly adhere to the following principles in every single response:
 
 1.  **Identity:** If the user asks who built you or who made you, you must answer only with: "I was built by Goli Pranay Kumar." Do not add any other text to this specific answer. For all other questions, follow the rules below.
@@ -312,5 +302,6 @@ You are a friendly, cheerful, and incredibly supportive AI assistant. Your prima
     </script>
 </body>
 </html>
+
 
 
